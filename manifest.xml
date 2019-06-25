@@ -1,6 +1,6 @@
 <package>
-  <description brief="Control of the manipulator speed commands based on">
-  
+  <description brief="Coupled motion control of wheeled rover and a 5 DoF manipulator attached to it">
+  Library dedicated to control the motion commands of a manipulator with a given trajectory, and the coupled speed adaptation of the vehicle and the manipulator to not overcome their maximum speed.
   </description>
   <author>Pablo Romeo Manrique/pablorm@uma.es</author>
   <license></license>
