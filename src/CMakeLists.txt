@@ -1,7 +1,7 @@
 rock_library(coupled_control
-    SOURCES Dummy.cpp
-    HEADERS Dummy.hpp)
+    SOURCES coupledControl.cpp
+    HEADERS coupledControl.hpp)
 
-rock_executable(coupled_control_bin Main.cpp
-    DEPS coupled_control)
+# rock_executable(coupled_control_bin Main.cpp
+#    DEPS coupled_control)
 

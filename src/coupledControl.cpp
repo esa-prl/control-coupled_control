@@ -1,0 +1,73 @@
+#include "coupledControl.hpp"
+
+using namespace coupled_control;
+
+void coupledControl::modifyMotionCommand(double mMaxSpeed, double maxJW, std::vector<double>& jW, base::commands::Motion2D rover_command, base::commands::Motion2D& modified_rover_command)
+{
+	// Speed adaption relation
+	double R = mMaxSpeed/maxJW;
+	std::cout << "Conversion relation: " << R << std::endl;
+	// Addapt all the arm motion commands to the maximum speed of the real motors
+	for (unsigned int i = 0; i < jW.size() ; i++) jW.at(i) = jW.at(i) * R;
+	
+	// Addapt the rover global speed to the speed of the arm
+	double vA = rover_command.translation;
+	double vR = rover_command.rotation;
+	modified_rover_command.translation = vA * R;
+	modified_rover_command.rotation = vR * R;
+}
+
+void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::vector<int> assign, std::vector<double> armConfig, std::vector<double>& nextConfig)
+{
+	// Selection of the next manipulator configuration depending on the current waypoint (current_segment)
+	int pointer = assign.at(current_waypoint);
+	std::cout << "Manipulator position goal: ";
+	for (unsigned int i = 0; i < nextConfig.size(); i++)
+	{
+		nextConfig.at(i) = armConfig.at(nextConfig.size()*pointer + i);
+		std::cout << nextConfig.at(i) << "  ";
+	}
+	std::cout << endl;
+}
+
+void coupledControl::manipulatorMotionControl(double gain, int& saturation, double mMaxSpeed, std::vector<double> nextConfig, std::vector<double> lastConfig, std::vector<double>& jW)
+{
+	double e;
+
+	std::cout << "Position error: ";
+	for(unsigned int i = 0; i < nextConfig.size(); i++)
+	{
+		e = nextConfig.at(i) - lastConfig.at(i);
+
+		if (e > PI) e = e - 2*PI;
+		else if (e < -PI) e = e + 2*PI;
+
+		std::cout << e << "  ";
+		jW.at(i) = gain * e;
+
+		if (abs(jW.at(i)) > mMaxSpeed) saturation = 1;
+	}
+	std::cout << std::endl;
+}
+
+int coupledControl::findMaxValue(std::vector<double> vect)
+{
+	unsigned int max = 0;
+	for(unsigned int i = 1; i < vect.size(); i++)
+	{
+		if(abs(vect.at(i)) > abs(vect.at(max))) max = i;
+	}
+	return max;
+}
+
+double coupledControl::constrainAngle(double angle)
+{
+    double c = cos(angle);
+	double s = sin(angle);
+	
+	double na = atan2(s,c);
+	if (na < 0) na = na + 2*PI;
+
+	return na;
+}
+
