@@ -12,6 +12,7 @@
 
 #define PI 3.1415
 
+
 using namespace std;
 
 namespace coupled_control
@@ -24,6 +25,7 @@ namespace coupled_control
 			void selectNextManipulatorPosition(int current_waypoint, std::vector<int> assign, std::vector<double> armConfig, std::vector<double>& nextConfig);
 			void manipulatorMotionControl(double gain, int& saturation, double mMaxSpeed, std::vector<double> nextConfig, std::vector<double> lastConfig, std::vector<double>& jW);
 			double constrainAngle(double angle);
+
 			
     };
 

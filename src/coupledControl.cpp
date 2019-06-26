@@ -6,6 +6,7 @@ void coupledControl::modifyMotionCommand(double mMaxSpeed, double maxJW, std::ve
 {
 	// Speed adaption relation
 	double R = mMaxSpeed/maxJW;
+
 	std::cout << "Conversion relation: " << R << std::endl;
 	// Addapt all the arm motion commands to the maximum speed of the real motors
 	for (unsigned int i = 0; i < jW.size() ; i++) jW.at(i) = jW.at(i) * R;
@@ -21,6 +22,7 @@ void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::ve
 {
 	// Selection of the next manipulator configuration depending on the current waypoint (current_segment)
 	int pointer = assign.at(current_waypoint);
+
 	std::cout << "Manipulator position goal: ";
 	for (unsigned int i = 0; i < nextConfig.size(); i++)
 	{
@@ -28,6 +30,7 @@ void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::ve
 		std::cout << nextConfig.at(i) << "  ";
 	}
 	std::cout << endl;
+
 }
 
 void coupledControl::manipulatorMotionControl(double gain, int& saturation, double mMaxSpeed, std::vector<double> nextConfig, std::vector<double> lastConfig, std::vector<double>& jW)
@@ -44,10 +47,10 @@ void coupledControl::manipulatorMotionControl(double gain, int& saturation, doub
 
 		std::cout << e << "  ";
 		jW.at(i) = gain * e;
-
 		if (abs(jW.at(i)) > mMaxSpeed) saturation = 1;
 	}
 	std::cout << std::endl;
+
 }
 
 int coupledControl::findMaxValue(std::vector<double> vect)
@@ -70,4 +73,5 @@ double coupledControl::constrainAngle(double angle)
 
 	return na;
 }
+
 
