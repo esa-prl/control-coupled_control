@@ -22,11 +22,10 @@ void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::ve
 {
 	// Selection of the next manipulator configuration depending on the current waypoint (current_segment)
 	int pointer = assign.at(current_waypoint);
-
 	std::cout << "Manipulator position goal: ";
 	for (unsigned int i = 0; i < nextConfig.size(); i++)
 	{
-		nextConfig.at(i) = armConfig.at(nextConfig.size()*pointer + i);
+		nextConfig.at(i) = constrainAngle(armConfig.at(nextConfig.size()*pointer + i));
 		std::cout << nextConfig.at(i) << "  ";
 	}
 	std::cout << endl;
@@ -49,6 +48,9 @@ void coupledControl::manipulatorMotionControl(double gain, int& saturation, doub
 		jW.at(i) = gain * e;
 		if (abs(jW.at(i)) > mMaxSpeed) saturation = 1;
 	}
+	jW.at(0) = -jW.at(0);
+	jW.at(1) = -jW.at(1);
+	jW.at(3) = -jW.at(3);
 	std::cout << std::endl;
 
 }
@@ -70,6 +72,7 @@ double coupledControl::constrainAngle(double angle)
 	
 	double na = atan2(s,c);
 	if (na < 0) na = na + 2*PI;
+	if (na > 2*PI) na = na - 2*PI;
 
 	return na;
 }
