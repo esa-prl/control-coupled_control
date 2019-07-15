@@ -1,6 +1,6 @@
 coupled_control
 =============
-Control of the manipulator speed commands based on
+Control of the rover and arm motion commands
 
 
 
