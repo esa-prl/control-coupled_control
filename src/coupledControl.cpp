@@ -2,7 +2,7 @@
 
 using namespace coupled_control;
 
-void coupledControl::modifyMotionCommand(double mMaxSpeed, double maxJW, std::vector<double>& jW, base::commands::Motion2D rover_command, base::commands::Motion2D& modified_rover_command)
+void coupledControl::modifyMotionCommand(double mMaxSpeed, double maxJW, std::vector<float>& jW, base::commands::Motion2D rover_command, base::commands::Motion2D& modified_rover_command)
 {
 	// Speed adaption relation
 	double R = mMaxSpeed/maxJW;
@@ -32,7 +32,7 @@ void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::ve
 
 }
 
-void coupledControl::manipulatorMotionControl(double gain, int& saturation, double mMaxSpeed, std::vector<double> nextConfig, std::vector<double> lastConfig, std::vector<double>& jW)
+void coupledControl::manipulatorMotionControl(double gain, int& saturation, double mMaxSpeed, std::vector<double> nextConfig, std::vector<double> lastConfig, std::vector<float>& jW)
 {
 	double e;
 
@@ -55,7 +55,7 @@ void coupledControl::manipulatorMotionControl(double gain, int& saturation, doub
 
 }
 
-int coupledControl::findMaxValue(std::vector<double> vect)
+int coupledControl::findMaxValue(std::vector<float> vect)
 {
 	unsigned int max = 0;
 	for(unsigned int i = 1; i < vect.size(); i++)
