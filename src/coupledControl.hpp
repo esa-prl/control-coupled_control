@@ -22,9 +22,9 @@ namespace coupled_control
         public: 
 			int  findMaxValue(std::vector<float> vect);
             void modifyMotionCommand(double mMaxSpeed, double maxJW, std::vector<float>& jW, base::commands::Motion2D rover_command, base::commands::Motion2D& modified_rover_command);
-			void selectNextManipulatorPosition(int current_waypoint, std::vector<int> assign, std::vector<double> armConfig, std::vector<double>& nextConfig);
+			void selectNextManipulatorPosition(int current_waypoint, std::vector<int> assign, std::vector<double> armConfig, std::vector<double>& nextConfig, int negative);
 			void manipulatorMotionControl(double gain, int& saturation, double mMaxSpeed, std::vector<double> nextConfig, std::vector<double> lastConfig, std::vector<float>& jW);
-			double constrainAngle(double angle);
+			double constrainAngle(double angle, int negative);
 
 			
     };

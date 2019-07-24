@@ -18,13 +18,13 @@ void coupledControl::modifyMotionCommand(double mMaxSpeed, double maxJW, std::ve
 	modified_rover_command.rotation = vR * R;
 }
 
-void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::vector<int> assign, std::vector<double> armConfig, std::vector<double>& nextConfig)
+void coupledControl::selectNextManipulatorPosition(int current_waypoint, std::vector<int> assign, std::vector<double> armConfig, std::vector<double>& nextConfig, int negative)
 {
 	// Selection of the next manipulator configuration depending on the current waypoint (current_segment)
 	int pointer = assign.at(current_waypoint);
 	for (unsigned int i = 0; i < nextConfig.size(); i++)
 	{
-		nextConfig.at(i) = constrainAngle(armConfig.at(nextConfig.size()*pointer + i));
+		nextConfig.at(i) = constrainAngle(armConfig.at(nextConfig.size()*pointer + i), negative);
 	}
 
 }
@@ -62,16 +62,23 @@ int coupledControl::findMaxValue(std::vector<float> vect)
 	return max;
 }
 
-double coupledControl::constrainAngle(double angle)
+double coupledControl::constrainAngle(double angle, int negative)
 {
     double c = cos(angle);
 	double s = sin(angle);
 	
 	double na = atan2(s,c);
-	if (na < -PI) na = na + 2*PI;
-	if (na > PI) na = na - 2*PI;
-
-	return na;
+    if(negative)
+    {
+        if (na < -PI) na = na + 2*PI;
+        if (na > PI) na = na - 2*PI;
+    }
+    else
+    {
+        if (na < 0) na = na + 2*PI;
+        if (na > 2*PI) na = na - 2*PI;
+    }
+    return na;
 }
 
 
