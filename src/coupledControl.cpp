@@ -2,23 +2,7 @@
 
 using namespace coupled_control;
 
-void coupledControl::modifyMotionCommand(const double mMaxSpeed,
-                                         const std::vector<double> &vd_arm_abs_speed,
-                                         MotionCommand &rover_command)
-{
-    // Speed adaptation ratio
 
-    double d_max_abs_speed = *max_element(vd_arm_abs_speed.begin(), vd_arm_abs_speed.end());
-    double R = mMaxSpeed / d_max_abs_speed;
-
-    // Addapt the rover global speed to the speed of the arm
-    /*double vA = rover_command.m_speed_ms;
-    double vR = rover_command.m_turnRate_rads;
-    modified_rover_command.m_speed_ms = vA * R;
-    modified_rover_command.m_turnRate_rads = vR * R;*/
-    rover_command.m_speed_ms *= R;
-    rover_command.m_turnRate_rads *= R;
-}
 
 bool coupledControl::selectNextManipulatorPosition(
     unsigned int current_waypoint,
@@ -39,16 +23,16 @@ bool coupledControl::selectNextManipulatorPosition(
     return pointer == (*armConfig).size() - 1;
 }
 
-void coupledControl::manipulatorMotionControl(double gain,
-                                              int &saturation,
-                                              double mMaxSpeed,
-                                              std::vector<double> nextConfig,
-                                              std::vector<double> lastConfig,
-                                              std::vector<double> &vd_abs_speed)
+void coupledControl::modifyMotionCommand(double gain,
+		                         std::vector<double> nextConfig,
+                                         std::vector<double> lastConfig,
+                                         const double mMaxSpeed,
+                                         std::vector<double> &vd_arm_abs_speed,
+                                         MotionCommand &rover_command)
 {
+    // Speed adaptation ratio
     double e;
-
-    std::cout << "Position error: ";
+    int saturation = 0;
     for (unsigned int i = 0; i < nextConfig.size(); i++)
     {
         e = nextConfig.at(i) - lastConfig.at(i);
@@ -57,11 +41,19 @@ void coupledControl::manipulatorMotionControl(double gain,
             e = e - 2 * PI;
         else if (e < -PI)
             e = e + 2 * PI;
-        vd_abs_speed.at(i) = abs(gain * e);
-        if (abs(vd_abs_speed.at(i)) > mMaxSpeed)
+        vd_arm_abs_speed.at(i) = abs(gain * e);
+        if (abs(vd_arm_abs_speed.at(i)) > mMaxSpeed)
 	{
 	    saturation = 1;
 	}
+    }
+
+    if (saturation == 1)
+    {
+        double d_max_abs_speed = *max_element(vd_arm_abs_speed.begin(), vd_arm_abs_speed.end());
+        double R = mMaxSpeed / d_max_abs_speed;
+        rover_command.m_speed_ms *= R;
+        rover_command.m_turnRate_rads *= R;
     }
 }
 
