@@ -28,7 +28,7 @@ void coupledControl::modifyMotionCommand(double gain,
                                          std::vector<double> lastConfig,
                                          const double mMaxSpeed,
                                          std::vector<double> &vd_arm_abs_speed,
-                                         MotionCommand &rover_command)
+                                         base::commands::Motion2D &rover_command)
 {
     // Speed adaptation ratio
     double e;
@@ -52,8 +52,8 @@ void coupledControl::modifyMotionCommand(double gain,
     {
         double d_max_abs_speed = *max_element(vd_arm_abs_speed.begin(), vd_arm_abs_speed.end());
         double R = mMaxSpeed / d_max_abs_speed;
-        rover_command.m_speed_ms *= R;
-        rover_command.m_turnRate_rads *= R;
+        rover_command.translation *= R;
+        rover_command.rotation *= R;
     }
 }
 
