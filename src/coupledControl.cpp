@@ -41,7 +41,7 @@ void coupledControl::modifyMotionCommand(double gain,
             e = e - 2 * PI;
         else if (e < -PI)
             e = e + 2 * PI;
-        vd_arm_abs_speed.at(i) = abs(gain * e);
+        vd_arm_abs_speed.at(i) = gain * e;
         if (abs(vd_arm_abs_speed.at(i)) > mMaxSpeed)
 	{
 	    saturation = 1;
