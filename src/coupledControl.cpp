@@ -23,16 +23,13 @@ bool coupledControl::selectNextManipulatorPosition(
     return pointer == (*armConfig).size() - 1;
 }
 
-void coupledControl::modifyMotionCommand(double gain,
+
+void coupledControl::getArmSpeed(double gain,
 		                         std::vector<double> nextConfig,
-                                         std::vector<double> lastConfig,
-                                         const double mMaxSpeed,
-                                         std::vector<double> &vd_arm_abs_speed,
-                                         base::commands::Motion2D &rover_command)
+                                 std::vector<double> lastConfig,
+                                 std::vector<double> &vd_arm_abs_speed)
 {
-    // Speed adaptation ratio
     double e;
-    int saturation = 0;
     for (unsigned int i = 0; i < nextConfig.size(); i++)
     {
         e = nextConfig.at(i) - lastConfig.at(i);
@@ -42,11 +39,29 @@ void coupledControl::modifyMotionCommand(double gain,
         else if (e < -PI)
             e = e + 2 * PI;
         vd_arm_abs_speed.at(i) = gain * e;
-        if (abs(vd_arm_abs_speed.at(i)) > mMaxSpeed)
-	{
-	    saturation = 1;
-	}
     }
+    
+}
+
+
+void coupledControl::modifyMotionCommand(double gain,
+		                         std::vector<double> nextConfig,
+                                         std::vector<double> lastConfig,
+                                         const double mMaxSpeed,
+                                         std::vector<double> &vd_arm_abs_speed,
+                                         base::commands::Motion2D &rover_command)
+{
+    // Speed adaptation ratio
+    int saturation = 0;
+    getArmSpeed(gain, nextConfig, lastConfig, vd_arm_abs_speed);
+    for (unsigned int i = 0; i < nextConfig.size(); i++)
+    {
+        if (abs(vd_arm_abs_speed.at(i)) > mMaxSpeed)
+        {
+            saturation = 1;
+        }
+    }
+    
 
     if (saturation == 1)
     {

@@ -17,6 +17,12 @@ class coupledControl
 {
 public:
     int findMaxValue(std::vector<float> vect);
+
+    void getArmSpeed(double gain,
+		                         std::vector<double> nextConfig,
+                                 std::vector<double> lastConfig,
+                                 std::vector<double> &vd_arm_abs_speed);
+
     void modifyMotionCommand(double gain,
 		                         std::vector<double> nextConfig,
                                          std::vector<double> lastConfig,
