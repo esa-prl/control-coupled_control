@@ -18,17 +18,18 @@ class coupledControl
 public:
     int findMaxValue(std::vector<float> vect);
 
-    void getArmSpeed(double gain,
-		                         std::vector<double> nextConfig,
-                                 std::vector<double> lastConfig,
-                                 std::vector<double> &vd_arm_abs_speed);
+    void getArmSpeed(double mGoalSpeed,
+		             std::vector<double> nextConfig,
+                     std::vector<double> lastConfig,
+                     std::vector<double> &vd_arm_abs_speed);
 
-    void modifyMotionCommand(double gain,
-		                         std::vector<double> nextConfig,
-                                         std::vector<double> lastConfig,
-                                         const double mMaxSpeed,
-                                         std::vector<double> &vd_arm_abs_speed,
-                                         base::commands::Motion2D &rover_command);
+    void modifyMotionCommand(std::vector<double> nextConfig,
+                             std::vector<double> lastConfig,
+                             std::vector<double> goalPose,
+                             std::vector<double> currentPose,
+                             double mGoalSpeed,
+                             std::vector<double> &vd_arm_abs_speed,
+                             base::commands::Motion2D &rover_command);
 
     bool selectNextManipulatorPosition(
         unsigned int current_waypoint,

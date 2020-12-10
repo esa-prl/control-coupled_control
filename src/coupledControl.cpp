@@ -24,51 +24,64 @@ bool coupledControl::selectNextManipulatorPosition(
 }
 
 
-void coupledControl::getArmSpeed(double gain,
+void coupledControl::getArmSpeed(double mGoalSpeed,
 		                         std::vector<double> nextConfig,
                                  std::vector<double> lastConfig,
                                  std::vector<double> &vd_arm_abs_speed)
 {
-    double e;
+    std::vector<double> error(nextConfig.size());
     for (unsigned int i = 0; i < nextConfig.size(); i++)
     {
-        e = nextConfig.at(i) - lastConfig.at(i);
+        error[i] = nextConfig.at(i) - lastConfig.at(i);
 
-        if (e > PI)
-            e = e - 2 * PI;
-        else if (e < -PI)
-            e = e + 2 * PI;
-        vd_arm_abs_speed.at(i) = gain * e;
+        if (error[i] > PI)
+            error[i] = error[i] - 2 * PI;
+        else if (error[i] < -PI)
+            error[i] = error[i] + 2 * PI;
     }
-    
+    double maxError = *std::max_element(error.begin(), error.end());
+
+    for (unsigned int i = 0; i < vd_arm_abs_speed.size(); i++)
+    {
+        vd_arm_abs_speed[i] = error[i]*mGoalSpeed/maxError;
+    }    
 }
 
 
-void coupledControl::modifyMotionCommand(double gain,
-		                         std::vector<double> nextConfig,
+void coupledControl::modifyMotionCommand(std::vector<double> nextConfig,
                                          std::vector<double> lastConfig,
-                                         const double mMaxSpeed,
+                                         std::vector<double> goalPose,
+                                         std::vector<double> currentPose,
+                                         double mGoalSpeed,
                                          std::vector<double> &vd_arm_abs_speed,
                                          base::commands::Motion2D &rover_command)
 {
     // Speed adaptation ratio
     int saturation = 0;
-    getArmSpeed(gain, nextConfig, lastConfig, vd_arm_abs_speed);
-    for (unsigned int i = 0; i < nextConfig.size(); i++)
-    {
-        if (abs(vd_arm_abs_speed.at(i)) > mMaxSpeed)
-        {
-            saturation = 1;
-        }
-    }
-    
+    getArmSpeed(mGoalSpeed, nextConfig, lastConfig, vd_arm_abs_speed);
 
-    if (saturation == 1)
+    double remainingDistance = sqrt(pow(goalPose[0]-currentPose[0],2)+pow(goalPose[1]-currentPose[1],2));
+    double remainingTurn = abs(goalPose[2]-currentPose[2]);
+
+    double translationTime = remainingDistance/rover_command.translation;
+    double rotationTime = remainingTurn/rover_command.rotation;
+
+
+    double time2BaseArrival = std::max(translationTime,rotationTime);
+    double time2ArmArrival = abs((nextConfig[0]-lastConfig[0])/vd_arm_abs_speed[0]);
+
+    if (time2ArmArrival > time2BaseArrival)
     {
-        double d_max_abs_speed = *max_element(vd_arm_abs_speed.begin(), vd_arm_abs_speed.end());
-        double R = mMaxSpeed / d_max_abs_speed;
-        rover_command.translation *= R;
-        rover_command.rotation *= R;
+        double decelerationRatioTranslation = translationTime/time2ArmArrival;
+        double decelerationRatioRotation = rotationTime/time2ArmArrival;
+        rover_command.translation *= decelerationRatioTranslation;
+        rover_command.rotation *= decelerationRatioRotation;
+    }
+    else
+    {
+        double decelerationRatio = time2ArmArrival/time2BaseArrival;
+        for(int i = 0; i < vd_arm_abs_speed.size(); i++)
+            vd_arm_abs_speed[i] *= decelerationRatio;
     }
 }
 
