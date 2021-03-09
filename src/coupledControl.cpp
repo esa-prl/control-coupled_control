@@ -112,8 +112,9 @@ void coupledControl::modifyMotionCommand(
     }
 
     // If the arm is faster than the rover body, arm speed is decelerated
-    else
+    else if (time2ArmArrival < time2BaseArrival)
     {
+
         double decelerationRatio = time2ArmArrival / time2BaseArrival;
         for (int i = 0; i < vd_arm_abs_speed.size(); i++)
         {
